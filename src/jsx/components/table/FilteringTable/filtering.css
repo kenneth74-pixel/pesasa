@@ -1,0 +1,115 @@
+.form-control.input-search{
+	height:38px;
+	border-radius:8px;
+	margin-top:8px;
+	margin-bottom:8px;
+}
+.input-search{
+	height:38px;
+	border-radius:8px;
+	margin-top:8px;
+	margin-bottom:8px;
+	border:1px solid #eee;
+	padding: 0 8px;
+}
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    margin: 5px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    
+  }
+  
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #2e5099;
+    border-radius:5px;
+   
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+.modal-90w{
+    width: 100%;
+    max-width: 80vw !important;
+  
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%) ;
+}
+.fade.modal-backdrop.modal-90w.show{
+    opacity: 0.8;
+   }
+.modal-backdrop.show {
+    opacity:0.5 !important;
+    position:fixed;
+    height:100%;
+}
+.fade.modal-backdrop.show{
+    opacity: 0.8;
+   }
+
+.filtering-table thead th:first-child{
+	width:70px;
+}
+.table tfoot tr {
+    border-bottom-width: 1px;
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-color: #EEEEEE;
+}
+
+.filter-pagination{
+	display: inline-block;
+    background: #f0f0f0;
+    border-radius: 10px;
+    padding: 5px 5px;
+}
+.filter-pagination .previous-button,
+.filter-pagination .next-button{
+    font-size: 16px;
+    border: 0 !important;
+    width: auto;
+	padding: 14px 20px;
+	margin: 0 5px;
+    border-radius: 10px;
+    display: inline-block;
+    background-color: #fff;
+	color: #4885ed;
+}
+
+.filter-pagination button:hover{
+	background:	#4885ed;
+	color:#fff;
+}
+.filter-pagination button[disabled]{
+	opacity:0.5;
+	cursor: default;
+}
+.filter-pagination button[disabled]:hover{
+	background:#4885ed;
+	opacity:0.5;
+	color:#fff;
+}
+.table-index input[type=number] {
+    background:#f0f0f0 !important;
+    color: #969ba0;
+    width: 70px;
+    border: 0;
+    background-color: #f8f8f8;
+    padding: 6px 0 6px 10px;
+}
+@media only screen and (max-width: 575px) {
+
+    .filter-pagination .previous-button,
+    .filter-pagination .next-button{
+        padding:8px 10px;
+        font-size:14px;
+    }
+}

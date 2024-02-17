@@ -1,0 +1,543 @@
+import React, { useMemo, useState, useEffect } from 'react';
+import ReactToPrint from "react-to-print";
+import PageTitle from "../../../layouts/PageTitle";
+import { useTable, useGlobalFilter, useFilters, usePagination } from 'react-table';
+import MOCK_DATA from './MOCK_DATA_2.json';
+import { COLUMNS } from './Columns';
+import swal from "sweetalert";
+import { verifyProcess, getReimbursedClientApplications, getClientDetail, getProcessComments } from "../../../../util/APIUtils.js";
+import TableExport from "./TableExport.jsx";
+import InvoiceDiscountingDialog from "./InvoiceDiscountingDialog3.js"
+import Dashboard from "../../Dashboard/BuyerReportDetail"
+//import './table.css';
+import './filtering.css';
+import { countryCodes } from "./appData.js"
+
+export const FilteringTable = () => {
+	const [directors, setDirectors] = useState([]);
+	const [buyers, setBuyers] = useState([]);
+	const [range, setRange] = useState("currentMonth");
+	const [isLoading, setisLoading] = useState(false);
+	const [activeToggle, setActiveToggle] = useState("aboutMe");
+	const [bussinessObje, setbussinessObje] = useState({});
+	const [clientDetail, setclientDetail] = useState({ buyers: [], docs: [], directors: [], creditlimit: {} });
+	const [viewMore, setviewMore] = useState(false);
+	const [postModal2, setPostModal2] = useState(false);
+	const [detailPart, setdetailPart] = useState({});
+	const [comment, setcomment] = useState("");
+	const [comments, setComments] = useState([]);
+	const [hideMenu, setHideMenu] = useState(false);
+	const componentRef = React.useRef(null);
+	const [hideDetail, sethideDetail] = useState(false);
+	let [addFormDataTwo, setAddFormDataTwo] = useState({
+		startDate: new Date(),
+		endDate: new Date(),
+		days: "",
+		name: "days",
+		year: new Date().getFullYear(),
+		month: -1,
+	});
+	const [addFormData, setAddFormData] = useState({
+		id: null,
+		name: '',
+		sector: '',
+		osector: '',
+		country: 'Uganda',
+		city: '',
+		town: '',
+		streetaddress: '',
+		contactPersonOne: '',
+		phoneOne: '',
+		designationOne: '',
+		contactEmailOne: '',
+		contactPersonTwo: '',
+		phoneTwo: '',
+		designationTwo: '',
+		contactEmailTwo: '',
+		clientBuyerId: null,
+		terms: 'choose',
+		code: '+256',
+		code2: '+256'
+	});
+
+
+
+	function openDetails2(data, process) {
+		//	setPostModal(false)
+		const getme = {
+			process: process,
+			processId: data.id
+		}
+		getComments(getme)
+		setPostModal2(true)
+		setdetailPart({ process: process, obj: data })
+	}
+
+	function openDetails(data) {
+		//loadgetClientDetail(data.id)
+		setbussinessObje(data)
+		setPostModal(true)
+		//setisLoading(true)
+
+
+	}
+	function updateData(userData) {
+		userData.actions = ""
+		console.log(userData)
+		if (!userData.isApproved) {
+			setAddFormData(userData)
+			setPostModal(true)
+		}
+	}
+	function addD() {
+
+		setAddFormData(
+			{
+				id: null,
+				name: '',
+				sector: '',
+				osector: '',
+				country: 'Uganda',
+				city: '',
+				town: '',
+				streetaddress: '',
+				contactPersonOne: '',
+				phoneOne: '',
+				designationOne: '',
+				contactEmailOne: '',
+				contactPersonTwo: '',
+				phoneTwo: '',
+				designationTwo: '',
+				contactEmailTwo: '',
+				clientBuyerId: null,
+				terms: 'choose',
+				code: '+256',
+				code2: '+256'
+			}
+		)
+		setPostModal(true)
+	}
+
+
+
+	function loadgetClientDetail(id) {
+		getClientDetail(id)
+			.then((response) => {
+				setclientDetail(response)
+				//	setPostModal(false);
+				//	swal('Good job!', 'Successfully Added', "success");
+
+			})
+			.catch((error) => {
+				console.log(error);
+				swal('Oops', error.message, "error");
+			});
+	}
+
+	function getComments(data) {
+		setComments([])
+		getProcessComments(data)
+			.then((response) => {
+				setComments(response)
+				setisLoading(false)
+				//	setPostModal(false);
+				//	swal('Good job!', 'Successfully Added', "success");
+
+			})
+			.catch((error) => {
+				setisLoading(false)
+				console.log(error);
+				swal('Oops', error.message, "error");
+			});
+	}
+
+	function verifyInfo() {
+		openDetails2(clientDetail.creditlimit, "credit")
+	}
+
+
+
+	function reloadMe(id) {
+		getReimbursedClientApplications()
+			.then((response) => {
+				response.map((option) => {
+					option.dateAdded = new Date(option.dateAdded).toDateString()
+					option.amount = numberWithCommas(option.amount)
+					if (id === option.id) {
+						setbussinessObje(option)
+					}
+				})
+				setDirectors(response)
+				//	setPostModal(false);
+				//	swal('Good job!', 'Successfully Added', "success");
+
+			})
+			.catch((error) => {
+				console.log(error);
+				swal('Oops', error.message, "error");
+			});
+	}
+
+
+
+	comments.map((data) => {
+		data.type = data.type === "VERIFIED" ? <div style={{ color: "green" }}>{data.type} <i className="fa fa-check"></i></div> : (data.type === "DECLINED" ? <div style={{ color: "red" }}>{data.type} <i className="fa fa-times"></i></div> : data.type)
+		data.dateAdded = new Date(data.dateAdded).toDateString()
+	})
+	directors.map((data) => {
+		//data.phone=data.code+data.phoneOne
+		data.add = data.city + " , " + data.country
+		//data.dateAdd=data.dateAdded.split("T")[0];
+		data.actions = <div className="d-flex">
+			{data.type === "CLIENT_ADDED" ? null :
+				<>
+					<button type="button"
+						className="btn btn-primary shadow btn-xs "
+
+						onClick={() => openDetails(data)}
+						data-dismiss="modal">
+						{data.progress === "DISBURSED" ? "Collect" : "Details"}
+						{/* <i className="fa fa-eye"></i> */}
+					</button>
+
+				</>
+
+			}
+
+
+		</div>
+	})
+
+
+	useEffect(() => {
+		//chackboxFun();
+	}, []);
+
+	const handleBeforePrint = React.useCallback(() => {
+		//console.log("`onBeforePrint` called");
+		setHideMenu(false)
+
+	}, []);
+
+	const reactToPrintContent = React.useCallback(() => {
+		return componentRef.current;
+	}, [componentRef.current]);
+
+	function numberWithCommas(x) {
+		if (x !== null && x !== undefined) {
+			return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+		} else {
+			return 0;
+		}
+	}
+
+	const codes = countryCodes.map(data => (
+
+		<option value={data.dial_code} > {" " + data.name + " (" + data.dial_code + " )"}</option>
+	))
+
+	const country = countryCodes.map(data => (
+
+		<option value={data.name} > {" " + data.name + " "}</option>
+	))
+
+
+	const [postModal, setPostModal] = useState(false);
+	const columns = useMemo(() => COLUMNS, [])
+	const data = useMemo(() => MOCK_DATA, [])
+	//useTable
+	const tableInstance = useTable({
+		columns,
+		data,
+		initialState: { pageIndex: 0 }
+	}, useFilters, useGlobalFilter, usePagination)
+	const [contacts, setContacts] = useState([]);
+
+
+
+
+	//Add Submit data
+	const handleAddFormSubmit = (data) => {
+		//    event.preventDefault();
+		var error = false;
+		var errorMsg = '';
+		if (comment === "") {
+			error = true;
+			errorMsg = 'Please add comment';
+		}
+
+
+
+
+		if (!error) {
+			const submitData = {
+				id: null,
+				type: data,
+				comment: comment,
+				process: detailPart.process,
+				processId: detailPart.obj.id
+			}
+
+			//console.log(addFormData)
+			//alert(JSON.stringify(submitData))
+			setisLoading(true)
+			verifyProcess(submitData)
+				.then((response) => {
+					setisLoading(false)
+					setPostModal2(false);
+					setcomment("")
+					swal('Good job!', 'Successfully Submitted', "success");
+					loadgetClientDetail(bussinessObje.id)
+
+				})
+				.catch((error) => {
+					setisLoading(false)
+					console.log(error);
+					swal('Oops', error.message, "error");
+				});
+
+			//  addFormData.Cust_Name = addFormData.Location = addFormData.Date_Join = '';         
+
+		} else {
+			swal('Oops', errorMsg, "error");
+		}
+	};
+
+	const handleAddFormChange = (event) => {
+		event.preventDefault();
+		const fieldName = event.target.getAttribute('name');
+		const fieldValue = event.target.value;
+		const newFormData = { ...addFormData };
+		newFormData[fieldName] = fieldValue;
+		setAddFormData(newFormData);
+	};
+
+
+	const handleSelectChange = (event) => {
+		event.preventDefault();
+		const fieldName = event.target.getAttribute('name');
+		const fieldValue = event.target.value;
+		//alert(fieldValue)
+		if (fieldValue === "create") {
+			//alert("kale")
+			addD()
+		}
+		else {
+			const newFormData = { ...addFormData };
+			newFormData[fieldName] = fieldValue;
+			setAddFormData(newFormData);
+		}
+	};
+
+
+	const {
+		state,
+	} = tableInstance
+
+
+	const { globalFilter, pageIndex } = state
+	const buyersOptions = []
+
+	buyers.map((data) => {
+		buyersOptions.push(
+			<option disabled={data.amOwner} value={data.id}>{data.name} {data.amOwner ? "(Already Added)" : ""}</option>
+		)
+	})
+
+	clientDetail.directors.map((data) => {
+		data.status = data.status === "VERIFIED" ? <div style={{ color: "green" }}>{data.status} <i className="fa fa-check"></i></div> : (data.status === "REJECTED" ? <div style={{ color: "red" }}>{data.status} <i className="fa fa-times"></i></div> : data.status)
+		data.actions = <div className="d-flex">
+			<button type="button"
+				className="btn btn-primary shadow btn-xs "
+
+				onClick={() => openDetails2(data, "directors")}
+				data-dismiss="modal">
+				view details
+				{/* <i className="fa fa-eye"></i> */}
+			</button>
+
+		</div>
+	})
+
+	clientDetail.buyers.map((data) => {
+		data.status = data.status === "VERIFIED" ? <div style={{ color: "green" }}>{data.status} <i className="fa fa-check"></i></div> : (data.status === "REJECTED" ? <div style={{ color: "red" }}>{data.status} <i className="fa fa-times"></i></div> : data.status)
+		data.actions = <div className="d-flex">
+			<button type="button"
+				className="btn btn-primary shadow btn-xs "
+
+				onClick={() => openDetails2(data, "buyers")}
+				data-dismiss="modal">
+				view details
+				{/* <i className="fa fa-eye"></i> */}
+			</button>
+
+		</div>
+	})
+
+
+	clientDetail.docs.map((data) => {
+		data.status = data.status === "VERIFIED" ? <div style={{ color: "green" }}>{data.status} <i className="fa fa-check"></i></div> : (data.status === "REJECTED" ? <div style={{ color: "red" }}>{data.status} <i className="fa fa-times"></i></div> : data.status)
+		data.view = <div className="d-flex">
+			<a
+				target="_blank"
+				href={data.path} >
+				<button type="button"
+					className="btn btn-success shadow btn-xs "
+
+
+					data-dismiss="modal">
+
+					view documnet
+
+					{/* <i className="fa fa-eye"></i> */}
+				</button>
+			</a>
+		</div>
+
+		data.actions = <div className="d-flex">
+			<button type="button"
+				className="btn btn-primary shadow btn-xs "
+
+				onClick={() => openDetails2(data, "docs")}
+				data-dismiss="modal">
+				view details
+				{/* <i className="fa fa-eye"></i> */}
+			</button>
+
+		</div>
+	})
+
+	return (
+		<>
+
+			<PageTitle activeMenu="Buyers"
+				motherMenu="Reports"
+				buttonComponent={hideDetail ? null :
+					<div>
+						{!hideMenu ?
+							<div style={{ textAlign: "center" }}>
+								<ReactToPrint
+									//onBeforeGetContent={handleBeforePrint}
+									onAfterPrint={handleBeforePrint}
+									// onBeforePrint={handleBeforePrint}
+									simple
+									round
+									trigger={() => (
+										<p style={{ textAlign: "center" }}>
+											<button to={"#"} className="btn btn-primary shadow btn-xs "> Export Portfolio</button>
+										</p>
+									)}
+									content={reactToPrintContent}
+								/>
+
+								{/* <button to={"#"} 	 className="btn btn-success  shadow btn-xs "
+   
+   onClick={()=> setHideMenu(true)}>
+				   
+			   Print Preview</button> */}
+							</div> :
+							<ReactToPrint
+								//onBeforeGetContent={handleBeforePrint}
+								onAfterPrint={handleBeforePrint}
+								// onBeforePrint={handleBeforePrint}
+								simple
+								round
+								trigger={() => (
+									<p style={{ textAlign: "center" }}>
+										<button to={"#"} className="btn btn-success shadow btn-xs ">Print</button>
+									</p>
+								)}
+								content={reactToPrintContent}
+							/>}
+					</div>}
+			/>
+
+
+			{hideDetail ? <>
+
+				<div
+					//style={{width:"100%", marginBottom:"30px"}} 
+					className="mb-sm-5 mb-3 d-flex flex-wrap align-items-center text-head"><h2 className="font-w600 mb-2 me-auto">Collections Details</h2> <button to={"#"} className="btn btn-primary mb-2 rounded"
+
+						onClick={() => sethideDetail(false)}>
+						{/* <i className="las la-calendar scale5 me-3"></i> */}
+						Show Summary</button></div>
+
+				{!postModal ?
+					<div className="card">
+						<div className="card-header">
+							<div className="row" style={{ width: "100%" }}>
+								<div className="col-xl-5 ">
+									<h4 className="card-title">Collections</h4>
+								</div>
+
+
+
+								{/* <div className="col-xl-3">
+					<button
+					
+					 className="btn btn-primary font-w600 mb-2 me-auto" onClick={()=> addD()}>Add New Buyer</button>
+					</div> */}
+							</div>
+						</div>
+
+
+
+						<div className="card-body">
+							<div className="row" style={{ width: "100%" }}>
+								{/* <div className="col-xl-3 ">
+					<h4 className="card-title">Added Buyers</h4>
+					</div> */}
+							</div>
+
+							<TableExport
+								hideDataExport={true}
+								rows={directors}
+								//rows={this.state.colors[1]==="primary"?finished: dataTemp}
+								columns={[
+
+									{ name: 'dateAdded', title: 'Date' },
+									{ name: 'client', title: 'Client' },
+									{ name: 'buyername', title: 'Buyer' },
+									{ name: 'amount', title: 'Amount' },
+									{ name: 'currency', title: 'Currency' },
+									{ name: 'status', title: 'Status' },
+									{ name: 'progress', title: 'Progress' },
+									{ name: 'actions', title: 'Actions' },
+								]}
+								//  exportColumns={this.state.columns2}
+								defaultExpandedGroups={[]}
+								grouping={[]}
+								defaultHiddenColumnNames={[]}
+								defaultPageSize={0}
+								hideSelectionExport
+								infiniteScrolling
+								fileName={"Directors"}
+
+
+							/>
+
+						</div>
+
+					</div> : <InvoiceDiscountingDialog
+						key={bussinessObje.status}
+						reloadMe={reloadMe}
+						setPostModal={setPostModal}
+						obj={bussinessObje}
+					/>}
+			</>
+				:
+				<div ref={componentRef}>
+					<Dashboard
+						setAddFormDataTwo={setAddFormDataTwo}
+						setRange={setRange}
+						key={hideMenu}
+						hideMenu={hideMenu}
+						hideDetail={sethideDetail}
+					/>
+				</div>}
+		</>
+	)
+
+}
+export default FilteringTable;
