@@ -1,5 +1,5 @@
 export const API_BASE_URL = 'http://localhost:8080/api'; 
-// export const API_BASE_URL = 'https://pesasa.net/pesasa-core'; // current deployment for hiding api and rewriting with ngnix
+// export const API_BASE_URL = 'https://pesasa.net/pesasa-core/api'; // current deployment for hiding api and rewriting with ngnix
 // export const API_BASE_URL = 'https://pesasa.net/pesasa-core-final/api';  //for exposing api end point and remove rewriting with ngnix
 //  export const API_BASE_URL = 'https://pesasa.net:8443/pesasa/api';
 

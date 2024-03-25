@@ -304,7 +304,7 @@ export const FilteringTable = () => {
 		var errorMsg = '';
 		addFormData.actions = ""
 		const age = calculateAge(addFormData.dob);
-		alert(addFormData.dob + " and " + age)
+		// alert(addFormData.dob + " and " + age)
 		if (addFormData.fname === "") {
 			error = true;
 			errorMsg = 'Please fill First name';

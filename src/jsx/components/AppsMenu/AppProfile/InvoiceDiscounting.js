@@ -332,8 +332,8 @@ const StepOne = (_props) => {
     addFormData.isnew = addFormData.isnew === "yes" ? true : false
     addFormData.discount = addFormData.discount.toString().split(",").join("")
     addFormData.amount = addFormData.amount.split(",").join("")
-    addFormData.netDis = addFormData.netDis.split(",").join("")
-    console.log(addFormData.netDis)
+    addFormData.netDis
+    console.log('net dis',addFormData.netDis)
     if (addFormData.recoveryMode === "select" || addFormData.recoveryMode === null) {
       error = true
       errorMsg = "Please select dicount fee recovery mode"
@@ -494,7 +494,7 @@ const StepOne = (_props) => {
       }
       else {
         // alert("here too")
-        newFormData["netDis"] = addFormData.discount
+        newFormData["netDis"] = addFormData.discount.toString().split(",").join("")
         newFormData["toDisburse"] = parseInt(theAmt) + parseInt(theDis)
       }
     }

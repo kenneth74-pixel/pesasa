@@ -85,8 +85,8 @@ const StepOne = (props) => {
       amount: amt,
       dateAdded: reimburseData.dob,
       mode: reimburseData.mode,
-      isFullyDisbursed: parseInt(addFormData.balanceToDisburse) === parseInt(amt) ? true : false
-
+      isFullyDisbursed: parseInt(addFormData.balanceToDisburse) === parseInt(amt) ? true : false,
+      isMse: true
     }
     if (reimburseData.amount === "") {
       swal('Oops', "Please add amount", "error");
