@@ -494,7 +494,7 @@ const StepOne = (_props) => {
       }
       else {
         // alert("here too")
-        newFormData["netDis"] = addFormData.discount.toString().split(",").join("")
+        newFormData["netDis"] = addFormData.discount
         newFormData["toDisburse"] = parseInt(theAmt) + parseInt(theDis)
       }
     }
